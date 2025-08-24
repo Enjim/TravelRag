@@ -35,12 +35,12 @@ def simple_test():
     # Step 3: Create vector store (use fewer docs for faster testing)
     print("\n3️⃣ CREATING VECTOR STORE...")
     # Just use the first 100 docs for faster testing
-    vs = create_vector_store(docs[:100]) # here the chunks become vectors
+    vs = create_vector_store(docs[:400]) # here the chunks become vectors
     print(f"✅ Vector store ready with {len(vs.documents)} documents")
     
     # Step 4: Test search
     print("\n4️⃣ TESTING SEARCH...")
-    test_query = "What places should I look out for in new york"  # Changed to New York City
+    test_query = "Are there any dangerous places in barcelona I should avoid?"
     results = vs.search(test_query, top_k=3)
     print(f"✅ Found {len(results)} results for '{test_query}'")
     
@@ -56,7 +56,7 @@ def simple_test():
         result = rag.answer_question(test_query)
         
         print(f"\n🎯 QUESTION: {result['query']}")
-        print(f"🤖 ANSWER: {result['answer'][:200]}...")
+        print(f"🤖 ANSWER: {result['answer']}")
         print(f"📚 SOURCES: {len(result['sources'])} found")
         
     except Exception as e:

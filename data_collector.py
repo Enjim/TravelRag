@@ -3,41 +3,6 @@ import requests
 import os
 import time
 
-def download_wikipedia_article(title, output_dir="travel_data"):
-    """Download Wikipedia article using wikipediaapi library."""
-    
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    # Create Wikipedia API object with proper user agent
-    wiki = wikipediaapi.Wikipedia(
-        language='en',
-        user_agent='TravelRag/1.0 (https://github.com/yourusername/travelrag; your@email.com)'
-    )
-    
-    try:
-        # Get the page - much simpler!
-        page = wiki.page(title)
-        
-        if page.exists():
-            # Save to file
-            filename = f"{output_dir}/Wikipedia_{title.replace(' ', '_')}.txt"
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(f"Source: Wikipedia\n")
-                f.write(f"Title: {title}\n")
-                f.write(f"URL: {page.fullurl}\n")
-                f.write(f"Content:\n{page.text}")
-            
-            print(f"✅ Downloaded Wikipedia: {title}")
-            return filename
-        else:
-            print(f"❌ Wikipedia article not found: {title}")
-            return None
-            
-    except Exception as e:
-        print(f"❌ Error downloading Wikipedia {title}: {str(e)}")
-        return None
-
 def download_wikivoyage_article(title, output_dir="travel_data"):
     """Download Wikivoyage article using direct API."""
     
@@ -83,17 +48,39 @@ def download_travel_articles():
     
     # Wikivoyage articles (using direct API)
     wikivoyage_articles = [
-        "Paris", "Tokyo", "London", "Rome", "Barcelona", 
-        "Europe", "Asia", "Backpacking", "Budget_travel"
-    ]
+    # Peru
+    "Peru",
+    "Lima",
+    "Cusco",
+    "Arequipa",
+    "Machu_Picchu",
+    "Sacred_Valley",
+    "Puno",
+    "Lake_Titicaca",
+    "Nazca",
+    "Peruvian_Amazon",
+
+    # Brazil
+    "Brazil",
+    "Rio_de_Janeiro",
+    "São_Paulo",
+    "Salvador",
+    "Brasília",
+    "Florianópolis",
+    "Iguaçu_Falls",
+    "Pantanal",
+    "Amazon_Rainforest",
+
+    # Regional / continental
+    "South_America",
+
+    # Travel topics
+    "Backpacking",
+    "Budget_travel"]
+
     
     print("🚀 Downloading travel articles...")
-    
-    # Download Wikipedia articles (clean and simple!)
-    for article in wikipedia_articles:
-        download_wikipedia_article(article)
-        time.sleep(1)
-    
+
     # Download Wikivoyage articles
     for article in wikivoyage_articles:
         download_wikivoyage_article(article)

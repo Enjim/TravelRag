@@ -90,7 +90,7 @@ class TravelRAGEngine:
         for doc, score in relevant_chunks:
             sources.append({
                 "title": doc['title'],
-                "content": doc['content'][:200] + "..." if len(doc['content']) > 200 else doc['content'],
+                "content": doc['content'],  # Show full content without truncation
                 "score": f"{score:.3f}",
                 "source_file": doc['source_file']
             })

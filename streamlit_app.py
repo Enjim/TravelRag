@@ -3,175 +3,158 @@ import os
 from text_processor import process_travel_documents
 from vector_store import create_vector_store, SimpleVectorStore
 from rag_engine import create_rag_engine
-import config
 
-# Page configuration
-st.set_page_config(
-    page_title="TravelRag - Your AI Travel Assistant",
-    page_icon="✈️",
-    layout="wide"
-)
+# Simple page config
+st.set_page_config(page_title="TravelRag Chatbot", page_icon="✈️")
 
-# Custom CSS for better styling
+# Simple styling
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 3rem;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .source-box {
-        background-color: #f0f2f6;
+    .chat-message {
         padding: 1rem;
-        border-radius: 0.5rem;
         margin: 0.5rem 0;
-        border-left: 4px solid #1f77b4;
-    }
-    .answer-box {
-        background-color: #e8f4fd;
-        padding: 1.5rem;
         border-radius: 0.5rem;
-        margin: 1rem 0;
-        border-left: 4px solid #28a745;
+    }
+    .user-message {
+        background-color: #e3f2fd;
+        text-align: right;
+    }
+    .bot-message {
+        background-color: #f5f5f5;
     }
 </style>
 """, unsafe_allow_html=True)
 
 @st.cache_resource
-def load_rag_system():
-    """Load the RAG system with caching."""
+def setup_rag():
+    """Smart RAG setup with vector store caching for faster startup."""
     
-    # Check if vector store exists
-    if os.path.exists("travel_vector_store.faiss") and os.path.exists("travel_vector_store.pkl"):
-        st.info("🔄 Loading existing vector store...")
-        vector_store = SimpleVectorStore(config.EMBEDDING_MODEL)
-        vector_store.load("travel_vector_store")
-        return create_rag_engine(vector_store)
-    
-    # Check if we have travel data
+    # Check if we have data
     if not os.path.exists("travel_data"):
-        st.error("❌ No travel data found! Please run data_collector.py first.")
+        st.error("❌ No travel_data folder found!")
         return None
     
-    # Process documents and create vector store
-    st.info("🔄 Processing travel documents and creating vector store...")
-    documents = process_travel_documents()
+    # Try to load existing vector store first
+    if os.path.exists("travel_vector_store.faiss") and os.path.exists("travel_vector_store.pkl"):
+        st.info("🔄 Loading existing vector store...")
+        try:
+            vs = SimpleVectorStore()
+            vs.load("travel_vector_store")
+            st.success("✅ Vector store loaded from cache!")
+            return create_rag_engine(vs)
+        except Exception as e:
+            st.warning(f"⚠️ Failed to load cached vector store: {str(e)}")
+            st.info("🔄 Creating new vector store...")
     
-    if not documents:
-        st.error("❌ No documents processed! Check your data files.")
+    # Process documents and create new vector store
+    docs = process_travel_documents()
+    if not docs:
+        st.error("❌ No documents processed!")
         return None
     
     # Create vector store
-    vector_store = create_vector_store(documents, config.EMBEDDING_MODEL)
+    vs = create_vector_store(docs)
     
     # Save for future use
-    vector_store.save("travel_vector_store")
+    try:
+        vs.save("travel_vector_store")
+        st.success("✅ Vector store created and saved!")
+    except Exception as e:
+        st.warning(f"⚠️ Could not save vector store: {str(e)}")
     
-    return create_rag_engine(vector_store)
+    # Create RAG engine
+    try:
+        rag = create_rag_engine(vs)
+        return rag
+    except Exception as e:
+        st.error(f"❌ RAG Error: {str(e)}")
+        return None
 
 def main():
-    """Main Streamlit application."""
+    st.title("✈️ TravelRag Chatbot")
+    st.write("Ask me anything about travel destinations!")
     
-    # Header
-    st.markdown('<h1 class="main-header">✈️ TravelRag</h1>', unsafe_allow_html=True)
-    st.markdown("### Your AI Travel Assistant powered by RAG")
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
     
-    # Sidebar
-    with st.sidebar:
-        st.header("⚙️ Settings")
-        
-        # Check API key
-        if config.OPENAI_API_KEY == "your-api-key-here":
-            st.error("⚠️ Please set your OpenAI API key in config.py")
-            st.stop()
-        else:
-            st.success("✅ OpenAI API key configured")
-        
-        st.markdown("---")
-        st.markdown("**About TravelRag**")
-        st.markdown("""
-        This system uses:
-        - **RAG** (Retrieval-Augmented Generation)
-        - **Wikipedia travel articles** as knowledge base
-        - **OpenAI GPT** for answer generation
-        
-        Ask any travel question and get informed answers with sources!
-        """)
+    # Setup RAG system
+    rag = setup_rag()
+    if not rag:
+        st.stop()
     
-    # Main content
-    tab1, tab2 = st.tabs(["🤖 Ask Questions", "📊 System Status"])
+    # Display chat messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
     
-    with tab1:
-        st.header("Ask Your Travel Question")
+    # Chat input
+    if prompt := st.chat_input("Ask a travel question..."):
+        # Add user message to chat
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
         
-        # Load RAG system
-        rag_system = load_rag_system()
-        
-        if rag_system is None:
-            st.error("❌ Failed to load RAG system. Please check the console for errors.")
-            return
-        
-        # Question input
-        question = st.text_input(
-            "What would you like to know about travel?",
-            placeholder="e.g., What are the best places to visit in Paris?",
-            help="Ask any travel-related question and get an AI-generated answer based on our travel knowledge base."
-        )
-        
-        # Submit button
-        if st.button("🚀 Get Answer", type="primary"):
-            if question.strip():
-                with st.spinner("🔍 Searching for relevant information..."):
-                    # Get answer
-                    result = rag_system.answer_question(question)
+        # Get bot response
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    result = rag.answer_question(prompt)
+                    response = result['answer']
                     
-                    # Display answer
-                    st.markdown('<div class="answer-box">', unsafe_allow_html=True)
-                    st.markdown(f"**Answer:** {result['answer']}")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    # Display answer first
+                    st.markdown(f"**Answer:** {response}")
                     
-                    # Display sources
+                    # Display sources separately with full details
                     if result['sources']:
                         st.subheader("📚 Sources")
-                        st.markdown("Here are the sources used to generate this answer:")
+                        st.write(f"Found {len(result['sources'])} relevant sources:")
                         
                         for i, source in enumerate(result['sources']):
-                            with st.expander(f"Source {i+1}: {source['title']} (Relevance: {source['score']})"):
-                                st.markdown(f"**Content:** {source['content']}")
-                                st.caption(f"File: {source['source_file']}")
+                            with st.expander(f"Source {i+1}: {source['title']} (Score: {source['score']})"):
+                                st.write(f"**Content:** {source['content']}")
+                                if 'source_file' in source:
+                                    st.caption(f"File: {source['source_file']}")
                     else:
                         st.warning("No sources found for this question.")
-            else:
-                st.warning("Please enter a question!")
+                    
+                    # Store complete response for chat history
+                    full_response = response
+                    if result['sources']:
+                        full_response += f"\n\nSources: {len(result['sources'])} found"
+                    
+                except Exception as e:
+                    error_msg = f"Sorry, I encountered an error: {str(e)}"
+                    st.error(error_msg)
+                    full_response = error_msg
+                
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
     
-    with tab2:
-        st.header("System Status")
+    # Simple sidebar info
+    with st.sidebar:
+        st.header("ℹ️ About")
+        st.write("This chatbot uses RAG to answer travel questions based on Wikipedia travel articles.")
         
-        # Check data directory
+        # Show system status
+        st.header("📊 Status")
         if os.path.exists("travel_data"):
-            files = os.listdir("travel_data")
-            st.success(f"✅ Travel data directory found with {len(files)} files")
+            files = [f for f in os.listdir("travel_data") if f.endswith('.txt')]
+            st.success(f"✅ {len(files)} travel articles loaded")
             
-            if files:
-                st.subheader("📁 Available Travel Articles")
-                for file in files:
-                    if file.endswith('.txt'):
-                        st.write(f"• {file.replace('.txt', '').replace('_', ' ')}")
+            # Show loaded articles list
+            st.subheader("📚 Loaded Articles")
+            for file in sorted(files):
+                # Clean up filename for display
+                article_name = file.replace('.txt', '').replace('_', ' ').title()
+                st.write(f"• {article_name}")
         else:
-            st.error("❌ Travel data directory not found")
+            st.error("❌ No travel data")
         
-        # Check vector store
+        # Show vector store status
         if os.path.exists("travel_vector_store.faiss"):
-            st.success("✅ Vector store index found")
+            st.success("✅ Vector store cached")
         else:
-            st.warning("⚠️ Vector store index not found - will be created on first use")
-        
-        # Check config
-        st.subheader("⚙️ Configuration")
-        st.write(f"**Embedding Model:** {config.EMBEDDING_MODEL}")
-        st.write(f"**Chunk Size:** {config.CHUNK_SIZE} characters")
-        st.write(f"**Top K Chunks:** {config.TOP_K_CHUNKS}")
+            st.info("ℹ️ Vector store will be created on first use")
 
 if __name__ == "__main__":
     main()
