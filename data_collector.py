@@ -30,14 +30,14 @@ def download_wikivoyage_article(title, output_dir="travel_data"):
                 f.write(f"Title: {title}\n")
                 f.write(f"Content:\n{content}")
             
-            print(f"✅ Downloaded Wikivoyage: {title}")
+            print(f"SUCCESS: Downloaded Wikivoyage: {title}")
             return filename
         else:
-            print(f"❌ Wikivoyage article not found: {title}")
+            print(f"ERROR: Wikivoyage article not found: {title}")
             return None
             
     except Exception as e:
-        print(f"❌ Error downloading Wikivoyage {title}: {str(e)}")
+        print(f"ERROR: Error downloading Wikivoyage {title}: {str(e)}")
         return None
 
 def download_travel_articles():
@@ -86,7 +86,7 @@ def download_travel_articles():
         download_wikivoyage_article(article)
         time.sleep(1)
     
-    print("✨ Done! Check the 'travel_data' folder.")
+    print("SUCCESS: Done! Check the 'travel_data' folder.")
 
 if __name__ == "__main__":
     download_travel_articles()

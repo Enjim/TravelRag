@@ -18,23 +18,23 @@ class SimpleVectorStore:
     def add_documents(self, documents: List[Dict]):
         """Add documents to the vector store."""
         if not documents:
-            print("❌ No documents to add!")
+            print("ERROR: No documents to add!")
             return
         
         self.documents = documents
         
         # Create embeddings for all documents
-        print("🔄 Creating embeddings...")
+        print("Creating embeddings...")
         texts = [doc['content'] for doc in documents]
         self.embeddings = self.model.encode(texts, show_progress_bar=True)
         
-        print(f"✅ Added {len(documents)} documents to vector store")
+        print(f"SUCCESS: Added {len(documents)} documents to vector store")
         print(f"📊 Embeddings shape: {self.embeddings.shape}")
     
     def search(self, query: str, top_k: int = 3) -> List[Tuple[Dict, float]]:
         """Search for similar documents using cosine similarity."""
         if self.embeddings is None:
-            print("❌ Vector store is empty! Add documents first.")
+            print("ERROR: Vector store is empty! Add documents first.")
             return []
         
         # Encode query
@@ -57,7 +57,7 @@ class SimpleVectorStore:
     def save(self, filepath: str):
         """Save the vector store to disk."""
         if self.embeddings is None:
-            print("❌ Nothing to save - vector store is empty!")
+            print("ERROR: Nothing to save - vector store is empty!")
             return
         
         # Save embeddings and documents
@@ -69,7 +69,7 @@ class SimpleVectorStore:
         with open(f"{filepath}.pkl", 'wb') as f:
             pickle.dump(data, f)
         
-        print(f"✅ Vector store saved to {filepath}.pkl")
+        print(f"SUCCESS: Vector store saved to {filepath}.pkl")
     
     def load(self, filepath: str):
         """Load the vector store from disk."""
@@ -80,11 +80,11 @@ class SimpleVectorStore:
             self.embeddings = data['embeddings']
             self.documents = data['documents']
             
-            print(f"✅ Vector store loaded from {filepath}.pkl")
+            print(f"SUCCESS: Vector store loaded from {filepath}.pkl")
             print(f"📊 Loaded {len(self.documents)} documents")
             
         except Exception as e:
-            print(f"❌ Error loading vector store: {str(e)}")
+            print(f"ERROR: Error loading vector store: {str(e)}")
 
 def create_vector_store(documents: List[Dict], model_name: str = "all-mpnet-base-v2") -> SimpleVectorStore:
     """Helper function to create and populate a vector store."""
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     # Test the vector store
     from text_processor import process_travel_documents
     
-    print("🧪 Testing simple vector store...")
+    print("Testing simple vector store...")
     
     # Process some sample documents
     docs = process_travel_documents()
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         query = "What are the best places to visit in Paris?"
         results = vs.search(query, top_k=2)
         
-        print(f"\n🔍 Search results for: '{query}'")
+        print(f"\nSearch results for: '{query}'")
         for i, (doc, score) in enumerate(results):
             print(f"\n{i+1}. {doc['title']} (Score: {score:.3f})")
             print(f"   Content: {doc['content'][:150]}...")

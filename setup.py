@@ -10,22 +10,22 @@ import sys
 
 def run_command(command, description):
     """Run a command and show progress."""
-    print(f"\n🔄 {description}...")
+    print(f"\nProcessing: {description}...")
     try:
         result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-        print(f"✅ {description} completed successfully!")
+        print(f"SUCCESS: {description} completed successfully!")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error during {description}: {e}")
+        print(f"ERROR: Error during {description}: {e}")
         print(f"Error output: {e.stderr}")
         return False
 
 def check_python_version():
     """Check if Python version is compatible."""
     if sys.version_info < (3, 8):
-        print("❌ Python 3.8 or higher is required!")
+        print("ERROR: Python 3.8 or higher is required!")
         return False
-    print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor} detected")
+    print(f"SUCCESS: Python {sys.version_info.major}.{sys.version_info.minor} detected")
     return True
 
 def check_config():
@@ -37,10 +37,10 @@ def check_config():
                 print("⚠️  Warning: Please set your OpenAI API key in config.py")
                 return False
             else:
-                print("✅ OpenAI API key configured")
+                print("SUCCESS: OpenAI API key configured")
                 return True
     except FileNotFoundError:
-        print("❌ config.py not found!")
+        print("ERROR: config.py not found!")
         return False
 
 def main():
@@ -54,13 +54,13 @@ def main():
     
     # Check if we're in the right directory
     if not os.path.exists('requirements.txt'):
-        print("❌ Please run this script from the TravelRag project directory!")
+        print("ERROR: Please run this script from the TravelRag project directory!")
         return
     
     # Install dependencies
     print("\n📦 Installing Python dependencies...")
     if not run_command("pip install -r requirements.txt", "Installing dependencies"):
-        print("❌ Failed to install dependencies. Please check your Python environment.")
+        print("ERROR: Failed to install dependencies. Please check your Python environment.")
         return
     
     # Check config
@@ -74,13 +74,13 @@ def main():
     # Download travel data
     print("\n📚 Downloading travel articles...")
     if not run_command("python data_collector.py", "Downloading travel data"):
-        print("❌ Failed to download travel data.")
+        print("ERROR: Failed to download travel data.")
         return
     
     # Test the system
     print("\n🧪 Testing the system...")
     if not run_command("python text_processor.py", "Testing text processing"):
-        print("❌ Text processing test failed.")
+        print("ERROR: Text processing test failed.")
         return
     
     print("\n" + "=" * 50)

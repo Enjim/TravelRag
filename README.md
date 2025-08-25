@@ -1,8 +1,8 @@
-# ✈️ TravelRag - AI Travel Assistant
+# TravelRag - Travel Information RAG System
 
 A simple but powerful Retrieval-Augmented Generation (RAG) system that answers travel questions using Wikipedia travel articles and OpenAI's GPT API.
 
-## 🎯 What It Does
+## What It Does
 
 - **Takes travel questions** from users
 - **Retrieves relevant information** from a curated travel knowledge base
@@ -10,7 +10,7 @@ A simple but powerful Retrieval-Augmented Generation (RAG) system that answers t
 - **Shows sources** so you know where the information comes from
 - **Simple web interface** built with Streamlit
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 User Question → Vector Search → Retrieve Relevant Chunks → GPT API → Answer + Sources
@@ -23,7 +23,7 @@ User Question → Vector Search → Retrieve Relevant Chunks → GPT API → Ans
 5. **Generation**: OpenAI GPT creates answers from retrieved context
 6. **Interface**: Clean Streamlit web app
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Install Dependencies
 
@@ -65,7 +65,7 @@ streamlit run streamlit_app.py
 
 Open your browser to the URL shown (usually `http://localhost:8501`)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 TravelRag/
@@ -79,7 +79,7 @@ TravelRag/
 └── README.md             # This file
 ```
 
-## 🔧 How It Works
+## How It Works
 
 ### Data Preparation
 - **`data_collector.py`**: Downloads travel articles from Wikipedia
@@ -99,7 +99,7 @@ TravelRag/
 - **`streamlit_app.py`**: Clean, responsive web app
 - **Features**: Question input, answer display, source citations, system status
 
-## 🎛️ Configuration
+## Configuration
 
 Edit `config.py` to customize:
 
@@ -111,7 +111,7 @@ CHUNK_OVERLAP = 50                      # Overlap between chunks
 TOP_K_CHUNKS = 3                        # Number of chunks to retrieve
 ```
 
-## 🔄 Switching Between Regional and General
+## Switching Between Regional and General
 
 **Easy!** Just change the articles in `data_collector.py`:
 
@@ -126,7 +126,7 @@ articles = ["Paris", "Rome", "Barcelona", "Amsterdam", "European_travel", ...]
 articles = ["Paris", "Paris_attractions", "Paris_culture", "Paris_food", ...]
 ```
 
-## 🧪 Testing Individual Components
+## Testing Individual Components
 
 Test each part separately:
 
@@ -144,7 +144,7 @@ python vector_store.py
 python rag_engine.py
 ```
 
-## 💡 Example Questions
+## Example Questions
 
 Try asking:
 - "What are the best places to visit in Paris?"
@@ -153,7 +153,7 @@ Try asking:
 - "What should I know about backpacking?"
 - "How do I stay safe while traveling?"
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -182,7 +182,7 @@ Try asking:
 - **Fewer chunks** = faster, less comprehensive
 - **More chunks** = comprehensive, slower
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 Easy to add:
 - **More data sources** (travel blogs, guidebooks)
@@ -191,7 +191,7 @@ Easy to add:
 - **User feedback** collection
 - **Export answers** to PDF/email
 
-## 📚 Dependencies
+## Dependencies
 
 - **sentence-transformers**: Text embeddings
 - **faiss-cpu**: Vector similarity search
@@ -200,7 +200,7 @@ Easy to add:
 - **requests**: HTTP requests
 - **beautifulsoup4**: Web scraping (if needed)
 
-## 🤝 Contributing
+## Contributing
 
 This is designed to be simple and educational. Feel free to:
 - Add more travel articles
@@ -208,7 +208,7 @@ This is designed to be simple and educational. Feel free to:
 - Improve the UI
 - Add new features
 
-## 📄 License
+## License
 
 MIT License - feel free to use and modify!
 

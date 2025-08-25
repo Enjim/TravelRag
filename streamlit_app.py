@@ -31,25 +31,25 @@ def setup_rag():
     
     # Check if we have data
     if not os.path.exists("travel_data"):
-        st.error("❌ No travel_data folder found!")
+        st.error("ERROR: No travel_data folder found!")
         return None
     
     # Try to load existing vector store first
     if os.path.exists("travel_vector_store.faiss") and os.path.exists("travel_vector_store.pkl"):
-        st.info("🔄 Loading existing vector store...")
+        st.info("Loading existing vector store...")
         try:
             vs = SimpleVectorStore()
             vs.load("travel_vector_store")
-            st.success("✅ Vector store loaded from cache!")
+            st.success("SUCCESS: Vector store loaded from cache!")
             return create_rag_engine(vs)
         except Exception as e:
             st.warning(f"⚠️ Failed to load cached vector store: {str(e)}")
-            st.info("🔄 Creating new vector store...")
+            st.info("Creating new vector store...")
     
     # Process documents and create new vector store
     docs = process_travel_documents()
     if not docs:
-        st.error("❌ No documents processed!")
+        st.error("ERROR: No documents processed!")
         return None
     
     # Create vector store
@@ -58,7 +58,7 @@ def setup_rag():
     # Save for future use
     try:
         vs.save("travel_vector_store")
-        st.success("✅ Vector store created and saved!")
+        st.success("SUCCESS: Vector store created and saved!")
     except Exception as e:
         st.warning(f"⚠️ Could not save vector store: {str(e)}")
     
@@ -67,7 +67,7 @@ def setup_rag():
         rag = create_rag_engine(vs)
         return rag
     except Exception as e:
-        st.error(f"❌ RAG Error: {str(e)}")
+        st.error(f"ERROR: RAG Error: {str(e)}")
         return None
 
 def main():
@@ -107,7 +107,7 @@ def main():
                     
                     # Display sources separately with full details
                     if result['sources']:
-                        st.subheader("📚 Sources")
+                        st.subheader("Sources")
                         st.write(f"Found {len(result['sources'])} relevant sources:")
                         
                         for i, source in enumerate(result['sources']):
@@ -139,20 +139,20 @@ def main():
         st.header("📊 Status")
         if os.path.exists("travel_data"):
             files = [f for f in os.listdir("travel_data") if f.endswith('.txt')]
-            st.success(f"✅ {len(files)} travel articles loaded")
+            st.success(f"SUCCESS: {len(files)} travel articles loaded")
             
             # Show loaded articles list
-            st.subheader("📚 Loaded Articles")
+            st.subheader("Loaded Articles")
             for file in sorted(files):
                 # Clean up filename for display
                 article_name = file.replace('.txt', '').replace('_', ' ').title()
                 st.write(f"• {article_name}")
         else:
-            st.error("❌ No travel data")
+            st.error("ERROR: No travel data")
         
         # Show vector store status
         if os.path.exists("travel_vector_store.faiss"):
-            st.success("✅ Vector store cached")
+            st.success("SUCCESS: Vector store cached")
         else:
             st.info("ℹ️ Vector store will be created on first use")
 

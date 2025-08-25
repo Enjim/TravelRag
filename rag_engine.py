@@ -67,7 +67,7 @@ class TravelRAGEngine:
     def answer_question(self, query: str) -> Dict:
         """Main method to answer a travel question using RAG."""
         
-        print(f"🔍 Searching for relevant information...")
+        print(f"Searching for relevant information...")
         
         # Retrieve relevant chunks
         relevant_chunks = self.retrieve_relevant_chunks(query)
@@ -79,10 +79,10 @@ class TravelRAGEngine:
                 "query": query
             }
         
-        print(f"📚 Found {len(relevant_chunks)} relevant sources")
+        print(f"Found {len(relevant_chunks)} relevant sources")
         
         # Generate answer
-        print("🤖 Generating answer...")
+        print("Generating answer...")
         answer = self.generate_answer(query, relevant_chunks)
         
         # Prepare sources for display
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     from text_processor import process_travel_documents
     from vector_store import create_vector_store
     
-    print("🧪 Testing RAG engine...")
+    print("Testing RAG engine...")
     
     # Check if we have data
     docs = process_travel_documents()
@@ -126,11 +126,11 @@ if __name__ == "__main__":
         test_question = "What are some travel tips for beginners?"
         result = rag.answer_question(test_question)
         
-        print(f"\n❓ Question: {result['query']}")
-        print(f"🤖 Answer: {result['answer']}")
-        print(f"\n📚 Sources:")
+        print(f"\nQuestion: {result['query']}")
+        print(f"Answer: {result['answer']}")
+        print(f"\nSources:")
         for i, source in enumerate(result['sources']):
             print(f"   {i+1}. {source['title']} (Score: {source['score']})")
             print(f"      {source['content']}")
     else:
-        print("❌ No documents found. Run data_collector.py first!")
+        print("ERROR: No documents found. Run data_collector.py first!")
