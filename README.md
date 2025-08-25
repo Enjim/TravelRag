@@ -83,6 +83,9 @@ TravelRag/
 - Make sure you have an OpenAI API key
 - Edit `config.py` and add your key
 
+## Getting started
+streamlit_app.py is the UI python file for talking to the chatbot. It is perhaps easier to follow the logic of the code in test.py. So in order to understand the structure of the code I would advice going through test.py. 
+
 ## License
 
 MIT License - feel free to use and modify!

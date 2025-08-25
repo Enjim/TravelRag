@@ -40,7 +40,7 @@ def simple_test():
     
     # Step 4: Test search
     print("\n4. TESTING SEARCH...")
-    test_query = "Are there any dangerous places in barcelona I should avoid?"
+    test_query = "What food should I try in Brazil?"
     results = vs.search(test_query, top_k=3)
     print(f"SUCCESS: Found {len(results)} results for '{test_query}'")
     
