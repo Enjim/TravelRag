@@ -99,21 +99,22 @@ def create_vector_store(documents: List[Dict], model_name: str = "all-mpnet-base
     vector_store.add_documents(documents)
     return vector_store
 
+# Test function
 if __name__ == "__main__":
-    # Test the vector store
     from text_processor import process_travel_documents
     
     print("Testing vector store...")
     
     # Process some sample documents
     docs = process_travel_documents()
-    
-    if docs:
+    if not docs:
+        print("ERROR: No documents found. Run data_collector.py first!")
+    else:
         # Create vector store
-        vs = create_vector_store(docs[:5])  # Just use first 5 docs for testing
+        vs = create_vector_store(docs[:10])  # Just use first 10 for testing
         
         # Test search
-        query = "What are the best places to visit in Paris?"
+        query = "What are the best places to visit in Barcelona?"
         results = vs.search(query, top_k=2)
         
         print(f"\nSearch results for: '{query}'")

@@ -13,7 +13,13 @@ def download_wikivoyage_article(title, output_dir="travel_data"):
         # Wikivoyage API call
         url = f"https://en.wikivoyage.org/w/api.php?action=query&prop=extracts&titles={title}&format=json&explaintext=1"
         
-        response = requests.get(url)
+        # Add proper headers to avoid 403 errors
+        headers = {
+            'User-Agent': 'TravelRag/1.0 (Educational Project)',
+            'Accept': 'application/json'
+        }
+        
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         
         data = response.json()
@@ -51,10 +57,10 @@ def download_travel_articles():
     # Peru
     "Peru",
     "Lima",
-    "Cusco",
+    "Cuzco",
     "Arequipa",
     "Machu_Picchu",
-    "Sacred_Valley",
+    "Sacred_Valley_of_the_Incas",
     "Puno",
     "Lake_Titicaca",
     "Nazca",
@@ -65,8 +71,8 @@ def download_travel_articles():
     "Rio_de_Janeiro",
     "São_Paulo",
     "Salvador",
-    "Brasília",
-    "Florianópolis",
+    "Brasilia",
+    "Florianopolis",
     "Iguaçu_Falls",
     "Pantanal",
     "Amazon_Rainforest",

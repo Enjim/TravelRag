@@ -1,52 +1,128 @@
 #!/usr/bin/env python3
 """
-Setup script for TravelRag
-Run this to get everything set up quickly!
+TravelRag Setup Script - Works on Windows and Mac
+Simple setup with minimal dependencies
 """
 
-import os
-import subprocess
 import sys
-
-def run_command(command, description):
-    """Run a command and show progress."""
-    print(f"\nProcessing: {description}...")
-    try:
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-        print(f"SUCCESS: {description} completed successfully!")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Error during {description}: {e}")
-        print(f"Error output: {e.stderr}")
-        return False
+import subprocess
+import os
+import platform
 
 def check_python_version():
     """Check if Python version is compatible."""
     if sys.version_info < (3, 8):
         print("ERROR: Python 3.8 or higher is required!")
+        print(f"Current version: {sys.version_info.major}.{sys.version_info.minor}")
         return False
+    
     print(f"SUCCESS: Python {sys.version_info.major}.{sys.version_info.minor} detected")
     return True
 
+def install_dependencies():
+    """Install Python dependencies."""
+    print("\nInstalling Python dependencies...")
+    
+    try:
+        # Install requirements
+        result = subprocess.run([
+            sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
+        ], check=True, capture_output=True, text=True)
+        
+        print("SUCCESS: All dependencies installed!")
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Failed to install dependencies: {e}")
+        print("\nTrying alternative approach for FAISS...")
+        
+        # Try installing FAISS separately
+        try:
+            if platform.system() == "Windows":
+                print("Trying Windows-specific FAISS installation...")
+                result = subprocess.run([
+                    sys.executable, "-m", "pip", "install", "faiss-cpu==1.7.4", "--only-binary=all"
+                ], check=True, capture_output=True, text=True)
+            else:
+                print("Trying conda-based FAISS installation...")
+                result = subprocess.run([
+                    sys.executable, "-m", "pip", "install", "faiss-cpu"
+                ], check=True, capture_output=True, text=True)
+            
+            print("SUCCESS: FAISS installed!")
+            
+            # Install other dependencies
+            result = subprocess.run([
+                sys.executable, "-m", "pip", "install", "sentence-transformers==2.2.2", "openai==1.3.0", "streamlit==1.28.0", "requests==2.31.0", "beautifulsoup4==4.12.2", "lxml==4.9.3", "wikipediaapi==0.6.0"
+            ], check=True, capture_output=True, text=True)
+            
+            print("SUCCESS: All dependencies installed!")
+            return True
+            
+        except subprocess.CalledProcessError as e2:
+            print(f"ERROR: Alternative installation also failed: {e2}")
+            print("\nManual installation required:")
+            print("1. Install Anaconda/Miniconda")
+            print("2. Run: conda install -c conda-forge faiss-cpu")
+            print("3. Run: pip install -r requirements.txt")
+            return False
+
 def check_config():
-    """Check if config.py has been set up."""
+    """Check if config.py exists and has API key."""
+    if not os.path.exists('config.py'):
+        print("\nCreating config.py template...")
+        
+        config_content = '''# OpenAI API Configuration
+OPENAI_API_KEY = "your-api-key-here"  # Replace with your actual API key
+
+# RAG Configuration
+TOP_K_CHUNKS = 5  # Number of document chunks to retrieve
+'''
+        
+        with open('config.py', 'w') as f:
+            f.write(config_content)
+        
+        print("SUCCESS: config.py created!")
+        print("IMPORTANT: Edit config.py and add your OpenAI API key")
+        return False
+    
+    # Check if API key is set
     try:
         with open('config.py', 'r') as f:
             content = f.read()
-            if 'your-api-key-here' in content:
-                print("⚠️  Warning: Please set your OpenAI API key in config.py")
-                return False
-            else:
-                print("SUCCESS: OpenAI API key configured")
-                return True
-    except FileNotFoundError:
-        print("ERROR: config.py not found!")
+        
+        if 'your-api-key-here' in content:
+            print("WARNING: Please set your OpenAI API key in config.py")
+            return False
+        else:
+            print("SUCCESS: OpenAI API key configured")
+            return True
+            
+    except Exception as e:
+        print(f"ERROR: Could not read config.py: {e}")
+        return False
+
+def download_sample_data():
+    """Download sample travel data."""
+    print("\nDownloading sample travel data...")
+    
+    try:
+        result = subprocess.run([
+            sys.executable, "data_collector.py"
+        ], check=True, capture_output=True, text=True)
+        
+        print("SUCCESS: Sample data downloaded!")
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(f"WARNING: Could not download sample data: {e}")
+        print("You can run this manually later with: python data_collector.py")
         return False
 
 def main():
     """Main setup function."""
-    print("🚀 Welcome to TravelRag Setup!")
-    print("=" * 50)
+    print("TravelRag Setup - Cross-Platform")
+    print("=" * 40)
     
     # Check Python version
     if not check_python_version():
@@ -58,37 +134,29 @@ def main():
         return
     
     # Install dependencies
-    print("\n📦 Installing Python dependencies...")
-    if not run_command("pip install -r requirements.txt", "Installing dependencies"):
-        print("ERROR: Failed to install dependencies. Please check your Python environment.")
+    if not install_dependencies():
         return
     
-    # Check config
-    print("\n⚙️  Checking configuration...")
-    if not check_config():
-        print("\n📝 Please edit config.py and add your OpenAI API key:")
-        print("   OPENAI_API_KEY = 'sk-your-actual-api-key-here'")
-        print("\nThen run this setup script again.")
-        return
+    # Check configuration
+    config_ok = check_config()
     
-    # Download travel data
-    print("\n📚 Downloading travel articles...")
-    if not run_command("python data_collector.py", "Downloading travel data"):
-        print("ERROR: Failed to download travel data.")
-        return
+    # Download sample data
+    download_sample_data()
     
-    # Test the system
-    print("\n🧪 Testing the system...")
-    if not run_command("python text_processor.py", "Testing text processing"):
-        print("ERROR: Text processing test failed.")
-        return
+    print("\n" + "=" * 40)
+    print("SETUP COMPLETE!")
+    print("=" * 40)
     
-    print("\n" + "=" * 50)
-    print("🎉 Setup completed successfully!")
-    print("\n🚀 To start the web app, run:")
-    print("   streamlit run streamlit_app.py")
-    print("\n📖 For more information, see README.md")
-    print("=" * 50)
+    if not config_ok:
+        print("\nNEXT STEPS:")
+        print("1. Edit config.py and add your OpenAI API key")
+        print("2. Run: python data_collector.py (if not already done)")
+        print("3. Run: streamlit run streamlit_app.py")
+    else:
+        print("\nREADY TO GO!")
+        print("Run: streamlit run streamlit_app.py")
+    
+    print("\nFor testing, run: python test.py")
 
 if __name__ == "__main__":
     main()
