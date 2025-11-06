@@ -1,6 +1,6 @@
 from typing import List, Dict, Tuple
-from vector_store import SimpleVectorStore
-import config
+from src.core.vector_store import SimpleVectorStore
+from src import config
 
 class TravelRAGEngine:
     """Main RAG engine for travel questions."""

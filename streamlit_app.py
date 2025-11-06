@@ -1,8 +1,13 @@
 import streamlit as st
 import os
-from text_processor import process_travel_documents
-from vector_store import create_vector_store, SimpleVectorStore
-from rag_engine import create_rag_engine
+from src.core.text_processor import process_travel_documents
+from src.core.vector_store import create_vector_store, SimpleVectorStore
+from src.core.rag_engine import create_rag_engine
+
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+VECTOR_BASENAME = PROJECT_ROOT / "storage" / "travel_vector_store"  # no extension
 
 # Simple page config
 st.set_page_config(page_title="TravelRag Chatbot", page_icon="✈️")
@@ -35,11 +40,11 @@ def setup_rag():
         return None
     
     # Try to load existing vector store first
-    if os.path.exists("travel_vector_store.faiss") and os.path.exists("travel_vector_store.pkl"):
+    if VECTOR_BASENAME.with_suffix(".faiss").exists() and VECTOR_BASENAME.with_suffix(".pkl").exists():
         st.info("Loading existing vector store...")
         try:
             vs = SimpleVectorStore()
-            vs.load("travel_vector_store")
+            vs.load(str(VECTOR_BASENAME))
             st.success("SUCCESS: Vector store loaded from cache!")
             return create_rag_engine(vs)
         except Exception as e:
@@ -57,7 +62,8 @@ def setup_rag():
     
     # Save for future use
     try:
-        vs.save("travel_vector_store")
+        VECTOR_BASENAME.parent.mkdir(parents=True, exist_ok=True)
+        vs.save(str(VECTOR_BASENAME))
         st.success("SUCCESS: Vector store created and saved!")
     except Exception as e:
         st.warning(f"⚠️ Could not save vector store: {str(e)}")
@@ -151,7 +157,7 @@ def main():
             st.error("ERROR: No travel data")
         
         # Show vector store status
-        if os.path.exists("travel_vector_store.faiss"):
+        if VECTOR_BASENAME.with_suffix(".faiss").exists():
             st.success("SUCCESS: Vector store cached")
         else:
             st.info("ℹ️ Vector store will be created on first use")
