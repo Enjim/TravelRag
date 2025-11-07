@@ -1,0 +1,24 @@
+[project]
+name = "travelrag"
+version = "0.1.0"
+description = "Dependencies for travelrag"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "numpy (>=2.3.4,<3.0.0)",
+    "streamlit (>=1.51.0,<2.0.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "faiss-cpu (>=1.12.0,<2.0.0)",
+    "beautifulsoup4 (>=4.14.2,<5.0.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "sentence-transformers (>=5.1.2,<6.0.0)",
+    "pydantic (>=2.12.4,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
